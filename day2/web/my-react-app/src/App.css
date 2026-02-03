@@ -23,8 +23,8 @@
 }
 
 .add-task input {
-  padding: 0.5rem;
-  width: 100%;
+  margin: 0 0.5rem;
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 0.5rem;
 }
@@ -48,6 +48,46 @@ ul {
 }
 
 .task-item {
+  border: 1px solid #646cff;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  background-color: #1a1a1a;
+}
+
+.Count-section {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #646cff;
+  border-radius: 1rem;
+  background-color: #1a1a1a;
+}
+
+.Count-button {
+  margin: 0 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: #646cff;
+  color: white;
+  cursor: pointer;
+}
+
+.cat-facts-section {
+  margin-top: 2rem;
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.cat-fact {
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border-bottom: 1px solid #646cff;
+}
+
+.cat-fact-card {
   border: 1px solid #646cff;
   border-radius: 1rem;
   padding: 1rem;
