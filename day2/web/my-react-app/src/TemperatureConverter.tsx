@@ -15,7 +15,11 @@ function TemperatureInput({
       <legend>
         Enter temperature in {scale === "C" ? "Celsius" : "Fahrenheit"}:
       </legend>
-      <input value={temperature} onChange={onTemperatureChange} className="temperature-input"/>
+      <input
+        value={temperature}
+        onChange={onTemperatureChange}
+        className="temperature-input"
+      />
     </fieldset>
   );
 }

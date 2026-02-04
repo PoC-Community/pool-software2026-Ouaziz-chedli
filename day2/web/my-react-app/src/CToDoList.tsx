@@ -36,7 +36,6 @@ export function toggleCompleted({
 }
 
 export function ToDoList({ toDoItems, setToDoItems }: ToDoItemsProps) {
-  ("This is toDoList function");
   return (
     <>
       <div className="to-do-list">
