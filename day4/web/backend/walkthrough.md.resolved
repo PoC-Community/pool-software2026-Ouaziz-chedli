@@ -1,0 +1,95 @@
+# Prisma Module Import Debug Walkthrough
+
+## Problem Summary
+
+The server was failing to start due to issues with Prisma Client import and initialization. The error involved "Cannot find module" errors and Prisma initialization failures specific to Prisma 7's new configuration model.
+
+## Root Causes Identified
+
+### 1. Incorrect Import Path
+The [server.js](file:///home/chedli/epitech/poc/pool-software2026-Ouaziz-chedli/day4/web/backend/server.js) file was trying to import Prisma Client from `../prisma/generated/client`, but the schema.prisma had configured the output path as `../generated/prisma` (relative to the prisma directory), placing the generated client at `./generated/prisma` relative to server.js.
+
+### 2. Missing Prisma 7 Adapter Dependencies
+Prisma 7 introduced a breaking change requiring database driver adapters. The `@prisma/adapter-pg` and `pg` packages were not installed.
+
+### 3. Improper Client Initialization
+Prisma 7 no longer supports direct instantiation with `new PrismaClient()` when using PostgreSQL. An adapter must be passed to the constructor with the connection string.
+
+### 4. Missing Environment Variable Loading
+The `dotenv` package wasn't being loaded at the start of the server file, preventing `DATABASE_URL` from being accessible.
+
+## Changes Made
+
+### 1. Installed Required Dependencies
+
+```bash
+npm install dotenv @prisma/adapter-pg pg
+```
+
+- `dotenv`: Load environment variables from `.env` file
+- `@prisma/adapter-pg`: Prisma 7 adapter for PostgreSQL
+- `pg`: Node.js PostgreSQL driver
+
+### 2. Updated [server.js](file:///home/chedli/epitech/poc/pool-software2026-Ouaziz-chedli/day4/web/backend/server.js)
+
+**Added dotenv configuration at the top:**
+```diff
++require("dotenv").config();
+ const express = require("express");
+```
+
+**Fixed Prisma import path and added adapter setup:**
+```diff
+-const { PrismaClient } = require("../prisma/generated/client");
++const { PrismaClient } = require("./generated/prisma");
++const { PrismaPg } = require("@prisma/adapter-pg");
+
+ const PORT = 3000;
+
+-const prisma = new PrismaClient();
++// Setup Prisma 7 adapter for PostgreSQL
++const connectionString = process.env.DATABASE_URL;
++const adapter = new PrismaPg({ connectionString });
++const prisma = new PrismaClient({ adapter });
+```
+
+### 3. Regenerated Prisma Client
+
+```bash
+npx prisma generate
+```
+
+This ensured the Prisma Client was generated with the latest schema configuration.
+
+## Verification
+
+The server now starts successfully and connects to the PostgreSQL database:
+
+```bash
+> backend@1.0.0 start
+> node server.js
+
+[dotenv@17.2.4] injecting env (1) from .env
+Server running on http://localhost:3000
+```
+
+Tested API endpoints:
+- ✅ `GET /` - Returns "Hello World!"
+- ✅ `GET /api/tasks/stats` - Successfully queries database and returns task statistics
+
+## Key Takeaways for Prisma 7
+
+> [!IMPORTANT]
+> Prisma 7 introduced breaking changes in how database connections are configured:
+
+1. **No URL in Schema**: The `url` field is no longer supported in `datasource` blocks in `schema.prisma`
+2. **Adapter Required**: Database connections must use driver adapters passed to the PrismaClient constructor
+3. **Explicit Dependencies**: Both the adapter package (`@prisma/adapter-pg`) and the underlying driver (`pg`) must be installed
+4. **Connection String via Adapter**: The DATABASE_URL is passed through the adapter, not directly to PrismaClient
+
+## Configuration Files
+
+The setup now relies on:
+- [prisma.config.ts](file:///home/chedli/epitech/poc/pool-software2026-Ouaziz-chedli/day4/web/backend/prisma.config.ts) - Contains datasource URL configuration
+- [.env](file:///home/chedli/epitech/poc/pool-software2026-Ouaziz-chedli/day4/web/backend/.env) - Stores the DATABASE_URL environment variable
+- [schema.prisma](file:///home/chedli/epitech/poc/pool-software2026-Ouaziz-chedli/day4/web/backend/prisma/schema.prisma) - Defines models and client generation output path
